@@ -39,7 +39,7 @@ class ProviderFactory
             case 'claude':
                 return new Claude($apiKey, $models['claude'] ?? []);
             default:
-                throw new \Exception("Unknown provider: $providerKey");
+                throw new \InvalidArgumentException("Unknown provider: $providerKey");
         }
     }
 }

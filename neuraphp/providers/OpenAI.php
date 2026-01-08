@@ -8,6 +8,7 @@ class OpenAI implements ProviderInterface
     protected string $apiKey;
     protected array $models;
     protected string $baseUrl;
+    protected mixed $lastRawResponse = null;
 
     public function __construct(string $apiKey, array $models = [])
     {
@@ -18,21 +19,19 @@ class OpenAI implements ProviderInterface
 
     public function chat(array $messages): mixed
     {
-        // Example: call OpenAI chat API
-            $model = $this->models['chat'] ?? 'gpt-3.5-turbo';
-            // Converter mensagens para formato OpenAI
-            $openaiMessages = [];
-            foreach ($messages as $msg) {
-                $openaiMessages[] = [
-                    'role' => $msg['role'] ?? 'user',
-                    'content' => $msg['content'] ?? $msg['message'] ?? ''
-                ];
-            }
-            $data = [
-                'model' => $model,
-                'messages' => $openaiMessages,
+        $model = $this->models['chat'] ?? 'gpt-3.5-turbo';
+        $openaiMessages = [];
+        foreach ($messages as $msg) {
+            $openaiMessages[] = [
+                'role' => $msg['role'] ?? 'user',
+                'content' => $msg['content'] ?? $msg['message'] ?? ''
             ];
-            return $this->request('chat/completions', $data);
+        }
+        $data = [
+            'model' => $model,
+            'messages' => $openaiMessages,
+        ];
+        return $this->request('chat/completions', $data);
     }
 
     public function image(string $prompt): mixed
@@ -43,7 +42,7 @@ class OpenAI implements ProviderInterface
             'prompt' => $prompt,
         ];
         $result = $this->request('images/generations', $data);
-        return is_string($result) ? $result : (is_array($result) && isset($result['url']) ? $result['url'] : '');
+        return $this->extractUrlFromResult($result);
     }
 
     public function voice(string $text): mixed
@@ -54,12 +53,11 @@ class OpenAI implements ProviderInterface
             'input' => $text,
         ];
         $result = $this->request('audio/speech', $data);
-        return is_string($result) ? $result : (is_array($result) && isset($result['url']) ? $result['url'] : '');
+        return $this->extractUrlFromResult($result);
     }
 
     public function video(string $prompt): mixed
     {
-        // Not supported by OpenAI (return empty string)
         return '';
     }
 
@@ -83,6 +81,17 @@ class OpenAI implements ProviderInterface
         return $this->request('moderations', $data);
     }
 
+    private function extractUrlFromResult(mixed $result): string
+    {
+        if (is_string($result)) {
+            return $result;
+        }
+        if (is_array($result) && isset($result['url'])) {
+            return $result['url'];
+        }
+        return '';
+    }
+
     protected function request(string $endpoint, array $data): mixed
     {
         $ch = curl_init($this->baseUrl . $endpoint);
@@ -97,8 +106,15 @@ class OpenAI implements ProviderInterface
         $err = curl_error($ch);
         curl_close($ch);
         if ($err) {
-            throw new \Exception('OpenAI request error: ' . $err);
+            throw new \RuntimeException('OpenAI request error: ' . $err);
         }
-        return json_decode($response, true);
+        $decoded = json_decode($response, true);
+        $this->lastRawResponse = $decoded;
+        return $decoded;
+    }
+
+    public function getLastRawResponse(): mixed
+    {
+        return $this->lastRawResponse;
     }
 }

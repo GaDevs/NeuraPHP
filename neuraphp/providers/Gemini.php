@@ -8,6 +8,8 @@ class Gemini implements ProviderInterface
     protected string $apiKey;
     protected array $models;
     protected string $baseUrl;
+    protected mixed $lastRawResponse = null;
+    private const MODEL_ENDPOINT_PREFIX = 'models/';
 
     public function __construct(string $apiKey, array $models = [])
     {
@@ -19,7 +21,7 @@ class Gemini implements ProviderInterface
     public function chat(array $messages): mixed
     {
         $model = $this->models['chat'] ?? 'gemini-1.5-pro-latest';
-        $endpoint = 'models/' . $model . ':generateContent';
+        $endpoint = self::MODEL_ENDPOINT_PREFIX . $model . ':generateContent';
         // Gemini espera contents como array de objetos {role, parts}
         $contents = [];
         foreach ($messages as $msg) {
@@ -52,8 +54,19 @@ class Gemini implements ProviderInterface
             'model' => $model,
             'prompt' => $prompt,
         ];
-        $result = $this->request('models/' . $model . ':generateImage', $data);
-        return is_string($result) ? $result : (is_array($result) && isset($result['url']) ? $result['url'] : '');
+        $result = $this->request(self::MODEL_ENDPOINT_PREFIX . $model . ':generateImage', $data);
+        return $this->extractImageUrl($result);
+    }
+
+    private function extractImageUrl(mixed $result): string
+    {
+        if (is_string($result)) {
+            return $result;
+        }
+        if (is_array($result) && isset($result['url'])) {
+            return $result['url'];
+        }
+        return '';
     }
 
     public function voice(string $text): mixed
@@ -75,7 +88,7 @@ class Gemini implements ProviderInterface
             'model' => $model,
             'input' => $text,
         ];
-        return $this->request('models/' . $model . ':embedContent', $data);
+        return $this->request(self::MODEL_ENDPOINT_PREFIX . $model . ':embedContent', $data);
     }
 
     public function moderation(string $text): mixed
@@ -98,8 +111,15 @@ class Gemini implements ProviderInterface
         $err = curl_error($ch);
         curl_close($ch);
         if ($err) {
-            throw new \Exception('Gemini request error: ' . $err);
+            throw new \RuntimeException('Gemini request error: ' . $err);
         }
-        return json_decode($response, true);
+        $decoded = json_decode($response, true);
+        $this->lastRawResponse = $decoded;
+        return $decoded;
+    }
+
+    public function getLastRawResponse(): mixed
+    {
+        return $this->lastRawResponse;
     }
 }

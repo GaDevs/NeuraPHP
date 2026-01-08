@@ -6,11 +6,6 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
   require_once __DIR__ . '/../sdk/vendor/autoload.php';
 }
 
-require_once __DIR__ . '/../neuraphp/modules/Voice.php';
-require_once __DIR__ . '/../neuraphp/core/RateLimit.php';
-require_once __DIR__ . '/../neuraphp/core/ProviderFactory.php';
-require_once __DIR__ . '/../neuraphp/core/ModelRegistry.php';
-require_once __DIR__ . '/../neuraphp/core/ProviderInterface.php';
 use NeuraPHP\Modules\Voice;
 use NeuraPHP\Core\RateLimit;
 use NeuraPHP\Core\ProviderFactory;
@@ -22,7 +17,7 @@ $allowed = $rate->check('voice_demo_' . $ip, 5, 60);
 $msg = '';
 $file = '';
 $debug = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demo_provider_ready()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demoProviderReady()) {
   $text = trim(filter_input(INPUT_POST, 'text', FILTER_DEFAULT));
   if ($text) {
     $providerKey = $_SESSION['provider'];
@@ -52,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
   <div class="max-w-lg mx-auto py-10">
     <h1 class="text-2xl font-bold mb-2">🔊 Voice Generation Demo</h1>
     <p class="mb-4 text-gray-600">Generate voice from text. (Demo saves text as a file; replace with real TTS for production.)</p>
-    <?php render_provider_form(); ?>
-    <?php if (!demo_provider_ready()): ?>
+    <?php renderProviderForm(); ?>
+    <?php if (!demoProviderReady()): ?>
       <div class="bg-yellow-100 text-yellow-700 p-3 rounded mb-4">Please select a provider and enter your API key to use the demo.</div>
     <?php endif; ?>
     <?php if (!$allowed): ?>
@@ -63,8 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
       <div class="bg-green-100 text-green-700 p-2 rounded mb-2"><?php echo htmlspecialchars($msg); ?></div>
     <?php endif; ?>
     <form method="post" class="flex gap-2 mb-4">
-      <input name="text" required maxlength="200" class="flex-1 p-2 border rounded" placeholder="Enter text..." <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>
-      <button class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>Generate</button>
+      <input name="text" required maxlength="200" class="flex-1 p-2 border rounded" placeholder="Enter text..." <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>Generate</button>
     </form>
     <?php if ($file): ?>
       <div class="mt-4">

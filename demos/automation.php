@@ -24,7 +24,7 @@ $result = null;
 $debug = [];
 
 $provider = null;
-if (demo_provider_ready()) {
+if (demoProviderReady()) {
   $providerKey = $_SESSION['provider'];
   $apiKey = $_SESSION['api_key'];
   $model = $_SESSION['embeddings_model'] ?? null;
@@ -36,7 +36,7 @@ if (demo_provider_ready()) {
 $auto = new Automations($provider);
 $auto->registerWorkflow('sample', ['steps' => ['step1', 'step2']]);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demo_provider_ready()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demoProviderReady()) {
   $action = $_POST['action'] ?? '';
   if ($action === 'trigger') {
     $result = $auto->trigger('sample', ['demo' => 'yes']);
@@ -64,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
   <div class="max-w-lg mx-auto py-10">
     <h1 class="text-2xl font-bold mb-2">🤖 Automations Demo</h1>
     <p class="mb-4 text-gray-600">Trigger workflows, add jobs, and send webhooks. Rate limited for safety.</p>
-    <?php render_provider_form(); ?>
-    <?php if (!demo_provider_ready()): ?>
+    <?php renderProviderForm(); ?>
+    <?php if (!demoProviderReady()): ?>
       <div class="bg-yellow-100 text-yellow-700 p-3 rounded mb-4">Please select a provider and enter your API key to use the demo.</div>
     <?php endif; ?>
     <?php if (!$allowed): ?>
@@ -75,9 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
       <div class="bg-green-100 text-green-700 p-2 rounded mb-2"><?php echo htmlspecialchars($msg); ?></div>
     <?php endif; ?>
     <form method="post" class="flex gap-2 mb-4">
-      <button name="action" value="trigger" class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) echo 'disabled'; ?>>Trigger Workflow</button>
-      <button name="action" value="job" class="bg-green-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) echo 'disabled'; ?>>Add Job</button>
-      <button name="action" value="webhook" class="bg-purple-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) echo 'disabled'; ?>>Send Webhook</button>
+      <button name="action" value="trigger" class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>Trigger Workflow</button>
+      <button name="action" value="job" class="bg-green-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>Add Job</button>
+      <button name="action" value="webhook" class="bg-purple-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>Send Webhook</button>
     </form>
     <?php if ($result): ?>
       <div class="bg-white rounded shadow p-4 mt-4">

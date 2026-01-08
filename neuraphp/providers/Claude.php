@@ -8,6 +8,7 @@ class Claude implements ProviderInterface
     protected string $apiKey;
     protected array $models;
     protected string $baseUrl;
+    protected mixed $lastRawResponse = null;
 
     public function __construct(string $apiKey, array $models = [])
     {
@@ -18,22 +19,21 @@ class Claude implements ProviderInterface
 
     public function chat(array $messages): mixed
     {
-        $model = $this->models['chat'] ?? 'claude-2';
-            $model = $this->models['chat'] ?? 'claude-3-opus-20240229';
-            // Converter mensagens para formato Anthropic
-            $claudeMessages = [];
-            foreach ($messages as $msg) {
-                $claudeMessages[] = [
-                    'role' => $msg['role'] ?? 'user',
-                    'content' => $msg['content'] ?? $msg['message'] ?? ''
-                ];
-            }
-            $data = [
-                'model' => $model,
-                'max_tokens' => 1024,
-                'messages' => $claudeMessages,
+        $model = $this->models['chat'] ?? 'claude-3-opus-20240229';
+        // Converter mensagens para formato Anthropic
+        $claudeMessages = [];
+        foreach ($messages as $msg) {
+            $claudeMessages[] = [
+                'role' => $msg['role'] ?? 'user',
+                'content' => $msg['content'] ?? $msg['message'] ?? ''
             ];
-            return $this->request('messages', $data);
+        }
+        $data = [
+            'model' => $model,
+            'max_tokens' => 1024,
+            'messages' => $claudeMessages,
+        ];
+        return $this->request('messages', $data);
     }
 
     public function image(string $prompt): mixed
@@ -80,8 +80,15 @@ class Claude implements ProviderInterface
         $err = curl_error($ch);
         curl_close($ch);
         if ($err) {
-            throw new \Exception('Claude request error: ' . $err);
+            throw new \RuntimeException('Claude request error: ' . $err);
         }
-        return json_decode($response, true);
+        $decoded = json_decode($response, true);
+        $this->lastRawResponse = $decoded;
+        return $decoded;
+    }
+
+    public function getLastRawResponse(): mixed
+    {
+        return $this->lastRawResponse;
     }
 }

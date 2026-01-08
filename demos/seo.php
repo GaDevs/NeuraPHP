@@ -6,11 +6,6 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
   require_once __DIR__ . '/../sdk/vendor/autoload.php';
 }
 
-require_once __DIR__ . '/../neuraphp/modules/SEO.php';
-require_once __DIR__ . '/../neuraphp/core/RateLimit.php';
-require_once __DIR__ . '/../neuraphp/core/ProviderFactory.php';
-require_once __DIR__ . '/../neuraphp/core/ModelRegistry.php';
-require_once __DIR__ . '/../neuraphp/core/ProviderInterface.php';
 use NeuraPHP\Modules\SEO;
 use NeuraPHP\Core\RateLimit;
 use NeuraPHP\Core\ProviderFactory;
@@ -23,7 +18,7 @@ $msg = '';
 $article = null;
 $meta = null;
 $debug = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demo_provider_ready()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demoProviderReady()) {
   $topic = trim(filter_input(INPUT_POST, 'topic', FILTER_DEFAULT));
   $action = $_POST['action'] ?? '';
   $providerKey = $_SESSION['provider'];
@@ -55,10 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div class="max-w-lg mx-auto py-10">
-    <h1 class="text-2xl font-bold mb-2">📈 SEO & Content Demo</h1>
-    <p class="mb-4 text-gray-600">Generate SEO articles, titles, and descriptions. Rate limited for safety.</p>
-    <?php render_provider_form(); ?>
-    <?php if (!demo_provider_ready()): ?>
+    <h1 class="text-2xl font-bold mb-2">📝 SEO & Content Demo</h1>
+    <p class="mb-4 text-gray-600">Generate SEO-optimized articles and meta tags for topics.</p>
+    <?php renderProviderForm(); ?>
+    <?php if (!demoProviderReady()): ?>
       <div class="bg-yellow-100 text-yellow-700 p-3 rounded mb-4">Please select a provider and enter your API key to use the demo.</div>
     <?php endif; ?>
     <?php if (!$allowed): ?>
@@ -67,10 +62,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
     <?php if ($msg): ?>
       <div class="bg-green-100 text-green-700 p-2 rounded mb-2"><?php echo htmlspecialchars($msg); ?></div>
     <?php endif; ?>
-    <form method="post" class="flex gap-2 mb-4">
-      <input name="topic" required maxlength="100" class="flex-1 p-2 border rounded" placeholder="Enter topic..." <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>
-      <button name="action" value="article" class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>Article</button>
-      <button name="action" value="meta" class="bg-green-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>Meta</button>
+    <form method="post" class="flex flex-col gap-2 mb-4">
+      <input name="topic" required maxlength="100" class="p-2 border rounded" placeholder="Enter a topic..." <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>
+      <div class="flex gap-2">
+        <button name="action" value="article" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>Generate Article</button>
+        <button name="action" value="meta" class="flex-1 bg-green-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>Generate Meta</button>
+      </div>
     </form>
     <?php if ($article): ?>
       <div class="bg-white rounded shadow p-4 mt-4">

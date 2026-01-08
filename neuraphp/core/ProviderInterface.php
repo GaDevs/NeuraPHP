@@ -44,4 +44,10 @@ interface ProviderInterface
      * @return mixed
      */
     public function moderation(string $text): mixed;
+
+    /**
+     * Get last raw response from API
+     * @return mixed
+     */
+    public function getLastRawResponse(): mixed;
 }

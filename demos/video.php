@@ -22,7 +22,7 @@ $allowed = $rate->check('video_demo_' . $ip, 3, 60);
 $msg = '';
 $result = null;
 $debug = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demo_provider_ready()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demoProviderReady()) {
   $topic = trim(filter_input(INPUT_POST, 'topic', FILTER_DEFAULT));
   if ($topic) {
     $providerKey = $_SESSION['provider'];
@@ -52,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
   <div class="max-w-lg mx-auto py-10">
     <h1 class="text-2xl font-bold mb-2">🎬 Video/Shorts Demo</h1>
     <p class="mb-4 text-gray-600">Generate a video/short with slides and narration. (Demo creates a placeholder file.)</p>
-    <?php render_provider_form(); ?>
-    <?php if (!demo_provider_ready()): ?>
+    <?php renderProviderForm(); ?>
+    <?php if (!demoProviderReady()): ?>
       <div class="bg-yellow-100 text-yellow-700 p-3 rounded mb-4">Please select a provider and enter your API key to use the demo.</div>
     <?php endif; ?>
     <?php if (!$allowed): ?>
@@ -63,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
       <div class="bg-green-100 text-green-700 p-2 rounded mb-2"><?php echo htmlspecialchars($msg); ?></div>
     <?php endif; ?>
     <form method="post" class="flex gap-2 mb-4">
-      <input name="topic" required maxlength="100" class="flex-1 p-2 border rounded" placeholder="Enter topic..." <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>
-      <button class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>Generate</button>
+      <input name="topic" required maxlength="100" class="flex-1 p-2 border rounded" placeholder="Enter topic..." <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>>Generate</button>
     </form>
     <?php if ($result): ?>
       <div class="bg-white rounded shadow p-4 mt-4">

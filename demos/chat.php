@@ -6,12 +6,7 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
   require_once __DIR__ . '/../sdk/vendor/autoload.php';
 }
 require_once __DIR__ . '/_provider.php';
-require_once __DIR__ . '/../neuraphp/core/Memory.php';
-require_once __DIR__ . '/../neuraphp/modules/Chat.php';
-require_once __DIR__ . '/../neuraphp/core/RateLimit.php';
-require_once __DIR__ . '/../neuraphp/core/ProviderFactory.php';
-require_once __DIR__ . '/../neuraphp/core/ModelRegistry.php';
-require_once __DIR__ . '/../neuraphp/core/ProviderInterface.php';
+
 use NeuraPHP\Core\Memory;
 use NeuraPHP\Modules\Chat;
 use NeuraPHP\Core\RateLimit;
@@ -27,7 +22,7 @@ $cid = 'demo_' . md5($ip);
 
 $memory = new Memory(__DIR__ . '/../neuraphp/memory');
 $provider = null;
-if (demo_provider_ready()) {
+if (demoProviderReady()) {
   $providerKey = $_SESSION['provider'];
   $apiKey = $_SESSION['api_key'];
   $chatModel = $_SESSION['model'] ?? null;
@@ -39,7 +34,7 @@ if (demo_provider_ready()) {
 $chat = new Chat($memory, $provider);
 
 $debug = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demo_provider_ready()) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demoProviderReady()) {
   $role = 'user';
   $input = trim(filter_input(INPUT_POST, 'message', FILTER_DEFAULT));
   if ($input) {
@@ -65,45 +60,65 @@ $history = $chat->getHistory($cid);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat Demo | NeuraPHP</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <title>Chat - NeuraPHP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <div class="max-w-lg mx-auto py-10">
-    <h1 class="text-2xl font-bold mb-2">💬 Chat Demo</h1>
-    <p class="mb-4 text-gray-600">Persistent chat with memory. Each visitor has a unique conversation. Rate limited for safety.</p>
-    <?php render_provider_form(); ?>
-    <?php if (!demo_provider_ready()): ?>
-      <div class="bg-yellow-100 text-yellow-700 p-3 rounded mb-4">Please select a provider and enter your API key to use the demo.</div>
+<body class="bg-gray-100">
+  <div class="max-w-4xl mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-4">💬 NeuraPHP Chat</h1>
+    
+    <?php renderProviderForm(); ?>
+
+    <?php if (!demoProviderReady()): ?>
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+      <p class="font-bold">Setup Required</p>
+      <p>Select a provider and enter your API key above to start chatting.</p>
+    </div>
     <?php endif; ?>
-    <?php if (!$allowed): ?>
-      <div class="bg-red-100 text-red-700 p-3 rounded mb-4">Rate limit exceeded. Please wait.</div>
-    <?php endif; ?>
-    <?php if ($msg): ?>
-      <div class="bg-green-100 text-green-700 p-2 rounded mb-2"><?php echo htmlspecialchars($msg); ?></div>
-    <?php endif; ?>
-    <form method="post" class="flex gap-2 mb-4">
-      <input name="message" required maxlength="200" class="flex-1 p-2 border rounded" placeholder="Type your message..." <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>
-      <button class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>Send</button>
-    </form>
-    <div class="bg-white rounded shadow p-4">
-      <h2 class="font-semibold mb-2">Conversation History</h2>
-      <div class="space-y-2 text-sm">
-        <?php foreach ($history as $msg): ?>
-          <div class="border-b pb-1"><b><?php echo htmlspecialchars($msg['role']); ?>:</b> <?php echo htmlspecialchars($msg['message']); ?> <span class="text-gray-400 text-xs"><?php echo date('H:i', $msg['timestamp']); ?></span></div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <div class="border rounded p-4 h-64 overflow-y-auto mb-4 bg-gray-50">
+        <?php foreach ($history as $h): ?>
+          <div class="mb-3 text-sm <?php echo ($h['role'] === 'user') ? 'text-right' : 'text-left'; ?>">
+            <span class="inline-block bg-<?php echo ($h['role'] === 'user') ? 'blue' : 'gray'; ?>-200 px-3 py-2 rounded max-w-xs break-words">
+              <strong><?php echo ucfirst($h['role']); ?>:</strong> <?php echo htmlspecialchars($h['content']); ?>
+            </span>
+          </div>
         <?php endforeach; ?>
-        <?php if (empty($history)): ?>
-          <div class="text-gray-400">No messages yet.</div>
+        <?php if ($msg): ?>
+          <div class="mb-3 text-sm text-left">
+            <span class="inline-block bg-green-200 px-3 py-2 rounded max-w-xs break-words">
+              <?php echo htmlspecialchars($msg); ?>
+            </span>
+          </div>
         <?php endif; ?>
       </div>
+
+      <form method="POST" class="flex gap-2">
+        <input
+          name="message"
+          type="text"
+          required
+          maxlength="500"
+          class="flex-1 p-3 border rounded"
+          placeholder="Type your message..."
+          <?php if (!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>
+        >
+        <button
+          class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
+          <?php if (!$allowed || !demoProviderReady()) { echo 'disabled'; } ?>
+        >
+          Send
+        </button>
+      </form>
     </div>
-    <?php if (!empty($debug)): ?>
-      <div class="bg-gray-900 text-green-200 text-xs mt-6 p-4 rounded">
-        <div class="font-bold text-green-400 mb-1">Debug Info (dev)</div>
-        <pre><?php echo htmlspecialchars(json_encode($debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></pre>
+
+    <?php if ($debug): ?>
+      <div class="mt-6 bg-gray-800 text-white p-4 rounded font-mono text-xs overflow-auto max-h-64">
+        <h3 class="font-bold mb-2">Debug Output</h3>
+        <pre><?php echo htmlspecialchars(json_encode($debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); ?></pre>
       </div>
     <?php endif; ?>
-    <a href="index.php" class="block mt-6 text-blue-500">&larr; All Demos</a>
   </div>
 </body>
 </html>
