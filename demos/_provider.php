@@ -21,9 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['provider_select'])) {
     $imageModel = isset($_POST['image_model']) ? trim($_POST['image_model']) : null;
     $voiceModel = isset($_POST['voice_model']) ? trim($_POST['voice_model']) : null;
     $embeddingsModel = isset($_POST['embeddings_model']) ? trim($_POST['embeddings_model']) : null;
-    if (isset($providers[$sel]) && $key !== '') {
+    
+    if (isset($providers[$sel])) {
         $_SESSION['provider'] = $sel;
-        $_SESSION['api_key'] = $key;
+        if ($key !== '') {
+            $_SESSION['api_key'] = $key;
+        }
         if ($model) {
             $_SESSION['model'] = $model;
         } else {
