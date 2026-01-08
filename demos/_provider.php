@@ -69,6 +69,7 @@ function renderProviderForm() {
     $modelsConfig = include_once __DIR__ . '/../neuraphp/config/models.php';
     
     echo '<form method="post" class="flex flex-col md:flex-row gap-2 mb-4 items-end">';
+    echo '<input type="hidden" name="provider_select" value="1">';
     renderProviderSelect($providers, $sessionData['sel']);
     renderApiKeyInput($sessionData['key']);
     
@@ -76,7 +77,7 @@ function renderProviderForm() {
         renderModelSelectors($modelsConfig[$sessionData['sel']], $sessionData);
     }
     
-    echo '<button name="provider_select" value="1" class="bg-gray-700 text-white px-4 py-2 rounded">Set</button>';
+    echo '<button type="submit" class="bg-gray-700 text-white px-4 py-2 rounded">Set</button>';
     echo '</form>';
     echo '<div class="text-xs text-gray-500 mb-4">Your API key is used only for this session and never stored.</div>';
 }
