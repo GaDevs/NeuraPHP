@@ -2,6 +2,9 @@
 // NeuraPHP AI Engine™ Chat Demo (Provider-aware)
 
 require_once __DIR__ . '/../vendor/autoload.php';
+if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
+  require_once __DIR__ . '/../sdk/vendor/autoload.php';
+}
 require_once __DIR__ . '/_provider.php';
 require_once __DIR__ . '/../neuraphp/core/Memory.php';
 require_once __DIR__ . '/../neuraphp/modules/Chat.php';

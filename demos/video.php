@@ -2,6 +2,9 @@
 // NeuraPHP AI Engine™ Video/Shorts Demo (Provider-aware)
 require_once __DIR__ . '/_provider.php';
 require_once __DIR__ . '/../vendor/autoload.php';
+if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
+  require_once __DIR__ . '/../sdk/vendor/autoload.php';
+}
 
 require_once __DIR__ . '/../neuraphp/modules/Video.php';
 require_once __DIR__ . '/../neuraphp/core/RateLimit.php';
