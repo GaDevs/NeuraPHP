@@ -1,0 +1,26 @@
+{
+    "name": "neuraphp/ai-engine",
+    "description": "Universal AI Infrastructure SDK for PHP Applications",
+    "type": "library",
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "NeuraPHP\\Core\\": "neuraphp/core/",
+            "NeuraPHP\\Modules\\": "neuraphp/modules/",
+            "NeuraPHP\\Providers\\": "neuraphp/providers/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit --testdox tests"
+    }
+}

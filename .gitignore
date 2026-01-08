@@ -1,0 +1,7 @@
+/vendor/
+/neuraphp/memory/
+/neuraphp/rate/
+/neuraphp/storage/
+*.log
+.DS_Store
+.vscode/
