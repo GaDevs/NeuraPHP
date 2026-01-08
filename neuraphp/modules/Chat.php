@@ -76,9 +76,28 @@ class Chat
             ];
         }, $history);
         $response = $this->provider->chat($messages);
-        // Assume response is array with 'choices' and 'message' (OpenAI style)
+
+        // OpenAI format
         if (isset($response['choices'][0]['message']['content'])) {
             $aiMsg = $response['choices'][0]['message']['content'];
+            $this->addMessage($conversationId, 'assistant', $aiMsg);
+            return $aiMsg;
+        }
+        // Gemini format
+        if (isset($response['candidates'][0]['content']['parts'][0]['text'])) {
+            $aiMsg = $response['candidates'][0]['content']['parts'][0]['text'];
+            $this->addMessage($conversationId, 'assistant', $aiMsg);
+            return $aiMsg;
+        }
+        // Claude format (Anthropic)
+        if (isset($response['content'])) {
+            $aiMsg = $response['content'];
+            $this->addMessage($conversationId, 'assistant', $aiMsg);
+            return $aiMsg;
+        }
+        // Claude v3 (Anthropic) - messages array
+        if (isset($response['messages'][0]['content'])) {
+            $aiMsg = $response['messages'][0]['content'];
             $this->addMessage($conversationId, 'assistant', $aiMsg);
             return $aiMsg;
         }
