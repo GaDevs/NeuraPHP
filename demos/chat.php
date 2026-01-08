@@ -30,10 +30,11 @@ $provider = null;
 if (demo_provider_ready()) {
   $providerKey = $_SESSION['provider'];
   $apiKey = $_SESSION['api_key'];
+  $chatModel = $_SESSION['model'] ?? null;
   $providersFile = __DIR__ . '/../neuraphp/config/providers.php';
   $modelsFile = __DIR__ . '/../neuraphp/config/models.php';
   $factory = ProviderFactory::fromConfig($providersFile, $modelsFile);
-  $provider = $factory->create($providerKey, $apiKey);
+  $provider = $factory->create($providerKey, $apiKey, $chatModel);
 }
 $chat = new Chat($memory, $provider);
 

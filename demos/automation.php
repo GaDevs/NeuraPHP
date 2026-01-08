@@ -27,10 +27,11 @@ $provider = null;
 if (demo_provider_ready()) {
   $providerKey = $_SESSION['provider'];
   $apiKey = $_SESSION['api_key'];
+  $model = $_SESSION['embeddings_model'] ?? null;
   $providersFile = __DIR__ . '/../neuraphp/config/providers.php';
   $modelsFile = __DIR__ . '/../neuraphp/config/models.php';
   $factory = ProviderFactory::fromConfig($providersFile, $modelsFile);
-  $provider = $factory->create($providerKey, $apiKey);
+  $provider = $factory->create($providerKey, $apiKey, $model);
 }
 $auto = new Automations($provider);
 $auto->registerWorkflow('sample', ['steps' => ['step1', 'step2']]);

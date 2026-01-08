@@ -24,10 +24,13 @@ class ProviderFactory
         return new self($providers, $modelRegistry);
     }
 
-    public function create(string $providerKey, string $apiKey): ProviderInterface
+    public function create(string $providerKey, string $apiKey, ?string $model = null): ProviderInterface
     {
         $providerKey = strtolower($providerKey);
         $models = $this->modelRegistry->all();
+        if ($model && isset($models[$providerKey])) {
+            $models[$providerKey]['chat'] = $model;
+        }
         switch ($providerKey) {
             case 'openai':
                 return new OpenAI($apiKey, $models['openai'] ?? []);

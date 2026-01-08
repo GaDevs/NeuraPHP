@@ -27,10 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
   if ($text) {
     $providerKey = $_SESSION['provider'];
     $apiKey = $_SESSION['api_key'];
+    $model = $_SESSION['voice_model'] ?? null;
     $providersFile = __DIR__ . '/../neuraphp/config/providers.php';
     $modelsFile = __DIR__ . '/../neuraphp/config/models.php';
     $factory = ProviderFactory::fromConfig($providersFile, $modelsFile);
-    $provider = $factory->create($providerKey, $apiKey);
+    $provider = $factory->create($providerKey, $apiKey, $model);
     $voice = new Voice($provider);
     $file = $voice->generate(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
     $msg = 'Voice file generated!';

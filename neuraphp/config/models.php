@@ -3,14 +3,39 @@
 return [
     'openai' => [
         'chat' => 'gpt-3.5-turbo',
+        'chat_models' => [
+            'gpt-4o' => 'GPT-4o (multimodal, mais avançado)',
+            'gpt-4-turbo' => 'GPT-4 Turbo',
+            'gpt-4' => 'GPT-4',
+            'gpt-3.5-turbo' => 'GPT-3.5 Turbo',
+        ],
         'image' => 'dall-e-3',
+        'image_models' => [
+            'dall-e-3' => 'DALL·E 3',
+            'dall-e-2' => 'DALL·E 2',
+        ],
         'voice' => 'tts-1',
+        'voice_models' => [
+            'tts-1' => 'TTS 1',
+            'tts-1-hd' => 'TTS 1 HD',
+        ],
         'video' => null,
         'embeddings' => 'text-embedding-ada-002',
         'moderation' => 'text-moderation-latest',
     ],
     'gemini' => [
-        'chat' => 'gemini-pro',
+        'chat' => 'gemini-3-pro',
+        'chat_models' => [
+            'gemini-3-pro' => 'Gemini 3 Pro (multimodal, mais avançado)',
+            'gemini-3-flash' => 'Gemini 3 Flash (rápido e equilibrado)',
+            'gemini-2.5-pro' => 'Gemini 2.5 Pro (raciocínio avançado)',
+            'gemini-2.5-flash' => 'Gemini 2.5 Flash (custo-benefício)',
+            'gemini-2.5-flash-lite' => 'Gemini 2.5 Flash-Lite (ultra rápido)',
+            'gemini-2.0-flash' => 'Gemini 2.0 Flash (2ª geração)',
+            'gemini-2.0-flash-lite' => 'Gemini 2.0 Flash-Lite (2ª geração, pequeno)',
+            'gemini-pro' => 'Gemini Pro (legado)',
+            'gemini-flash-latest' => 'Gemini Flash (sempre o mais recente)',
+        ],
         'image' => 'gemini-image',
         'voice' => null,
         'video' => null,
@@ -18,7 +43,14 @@ return [
         'moderation' => null,
     ],
     'claude' => [
-        'chat' => 'claude-2',
+        'chat' => 'claude-3-opus-20240229',
+        'chat_models' => [
+            'claude-3-opus-20240229' => 'Claude 3 Opus',
+            'claude-3-sonnet-20240229' => 'Claude 3 Sonnet',
+            'claude-3-haiku-20240307' => 'Claude 3 Haiku',
+            'claude-2.1' => 'Claude 2.1',
+            'claude-2.0' => 'Claude 2.0',
+        ],
         'image' => null,
         'voice' => null,
         'video' => null,
