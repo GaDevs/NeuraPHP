@@ -15,7 +15,7 @@ class Gemini implements ProviderInterface
     {
         $this->apiKey = $apiKey;
         $this->models = $models;
-        $this->baseUrl = 'https://generativelanguage.googleapis.com/v1beta/';
+        $this->baseUrl = 'https://generativelanguage.googleapis.com/v1/';
     }
 
     public function chat(array $messages): mixed
