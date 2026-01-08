@@ -19,12 +19,20 @@ class OpenAI implements ProviderInterface
     public function chat(array $messages): mixed
     {
         // Example: call OpenAI chat API
-        $model = $this->models['chat'] ?? 'gpt-3.5-turbo';
-        $data = [
-            'model' => $model,
-            'messages' => $messages,
-        ];
-        return $this->request('chat/completions', $data);
+            $model = $this->models['chat'] ?? 'gpt-3.5-turbo';
+            // Converter mensagens para formato OpenAI
+            $openaiMessages = [];
+            foreach ($messages as $msg) {
+                $openaiMessages[] = [
+                    'role' => $msg['role'] ?? 'user',
+                    'content' => $msg['content'] ?? $msg['message'] ?? ''
+                ];
+            }
+            $data = [
+                'model' => $model,
+                'messages' => $openaiMessages,
+            ];
+            return $this->request('chat/completions', $data);
     }
 
     public function image(string $prompt): mixed
@@ -34,7 +42,8 @@ class OpenAI implements ProviderInterface
             'model' => $model,
             'prompt' => $prompt,
         ];
-        return $this->request('images/generations', $data);
+        $result = $this->request('images/generations', $data);
+        return is_string($result) ? $result : (is_array($result) && isset($result['url']) ? $result['url'] : '');
     }
 
     public function voice(string $text): mixed
@@ -44,13 +53,14 @@ class OpenAI implements ProviderInterface
             'model' => $model,
             'input' => $text,
         ];
-        return $this->request('audio/speech', $data);
+        $result = $this->request('audio/speech', $data);
+        return is_string($result) ? $result : (is_array($result) && isset($result['url']) ? $result['url'] : '');
     }
 
     public function video(string $prompt): mixed
     {
-        // Not supported by OpenAI (return null or throw)
-        return null;
+        // Not supported by OpenAI (return empty string)
+        return '';
     }
 
     public function embeddings(string $text): mixed

@@ -34,6 +34,7 @@ if (demo_provider_ready()) {
 }
 $chat = new Chat($memory, $provider);
 
+$debug = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demo_provider_ready()) {
   $role = 'user';
   $input = trim(filter_input(INPUT_POST, 'message', FILTER_DEFAULT));
@@ -43,8 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
     $aiMsg = $chat->getAIResponse($cid);
     if ($aiMsg) {
       $msg = 'AI: ' . htmlspecialchars($aiMsg);
+      $debug['ai_response'] = $aiMsg;
     } else {
       $msg = 'Message sent!';
+      $debug['ai_response'] = null;
+    }
+    // Debug: capturar última resposta bruta do provider, se possível
+    if (isset($provider) && method_exists($provider, 'getLastRawResponse')) {
+      $debug['provider_raw'] = $provider->getLastRawResponse();
     }
   }
 }
@@ -86,6 +93,12 @@ $history = $chat->getHistory($cid);
         <?php endif; ?>
       </div>
     </div>
+    <?php if (!empty($debug)): ?>
+      <div class="bg-gray-900 text-green-200 text-xs mt-6 p-4 rounded">
+        <div class="font-bold text-green-400 mb-1">Debug Info (dev)</div>
+        <pre><?php echo htmlspecialchars(json_encode($debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></pre>
+      </div>
+    <?php endif; ?>
     <a href="index.php" class="block mt-6 text-blue-500">&larr; All Demos</a>
   </div>
 </body>

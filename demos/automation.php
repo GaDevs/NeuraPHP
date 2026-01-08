@@ -18,6 +18,7 @@ $allowed = $rate->check('automation_demo_' . $ip, 10, 60);
 
 $msg = '';
 $result = null;
+$debug = [];
 
 $provider = null;
 if (demo_provider_ready()) {
@@ -42,6 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
   } elseif ($action === 'webhook') {
     $result = $auto->webhook('demo_event', ['bar' => 'baz']);
     $msg = 'Webhook received!';
+  }
+  if (isset($provider) && method_exists($provider, 'getLastRawResponse')) {
+    $debug['provider_raw'] = $provider->getLastRawResponse();
   }
 }
 ?><!DOCTYPE html>
@@ -73,7 +77,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
     </form>
     <?php if ($result): ?>
       <div class="bg-white rounded shadow p-4 mt-4">
+        <div class="mb-2 font-semibold">Resultado da automação:</div>
         <pre class="text-xs text-gray-700"><?php echo htmlspecialchars(print_r($result, true)); ?></pre>
+        <div class="text-xs text-gray-500 mt-1">Automação executada pelo provedor selecionado.</div>
+      </div>
+    <?php endif; ?>
+    <?php if (!empty($debug)): ?>
+      <div class="bg-gray-900 text-green-200 text-xs mt-6 p-4 rounded">
+        <div class="font-bold text-green-400 mb-1">Debug Info (API Response)</div>
+        <pre><?php echo htmlspecialchars(json_encode($debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></pre>
       </div>
     <?php endif; ?>
     <a href="index.php" class="block mt-6 text-blue-500">&larr; All Demos</a>

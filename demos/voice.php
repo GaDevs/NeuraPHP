@@ -18,6 +18,7 @@ $allowed = $rate->check('voice_demo_' . $ip, 5, 60);
 
 $msg = '';
 $file = '';
+$debug = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demo_provider_ready()) {
   $text = trim(filter_input(INPUT_POST, 'text', FILTER_DEFAULT));
   if ($text) {
@@ -30,6 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
     $voice = new Voice($provider);
     $file = $voice->generate(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
     $msg = 'Voice file generated!';
+    if (isset($provider) && method_exists($provider, 'getLastRawResponse')) {
+      $debug['provider_raw'] = $provider->getLastRawResponse();
+    }
   }
 }
 ?><!DOCTYPE html>
@@ -59,7 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
       <button class="bg-blue-600 text-white px-4 py-2 rounded" <?php if(!$allowed || !demo_provider_ready()) { echo 'disabled'; } ?>>Generate</button>
     </form>
     <?php if ($file): ?>
-      <div class="mt-4"><a href="<?php echo '../neuraphp/storage/' . basename($file); ?>" class="text-blue-600 underline" download>Download Voice File</a></div>
+      <div class="mt-4">
+        <a href="<?php echo '../neuraphp/storage/' . basename($file); ?>" class="text-blue-600 underline" download>Download Voice File</a>
+        <div class="text-xs text-gray-500 mt-1">Arquivo de voz gerado pelo provedor selecionado.</div>
+      </div>
+    <?php endif; ?>
+    <?php if (!empty($debug)): ?>
+      <div class="bg-gray-900 text-green-200 text-xs mt-6 p-4 rounded">
+        <div class="font-bold text-green-400 mb-1">Debug Info (API Response)</div>
+        <pre><?php echo htmlspecialchars(json_encode($debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></pre>
+      </div>
     <?php endif; ?>
     <a href="index.php" class="block mt-6 text-blue-500">&larr; All Demos</a>
   </div>

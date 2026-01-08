@@ -19,29 +19,39 @@ class Claude implements ProviderInterface
     public function chat(array $messages): mixed
     {
         $model = $this->models['chat'] ?? 'claude-2';
-        $data = [
-            'model' => $model,
-            'messages' => $messages,
-        ];
-        return $this->request('messages', $data);
+            $model = $this->models['chat'] ?? 'claude-3-opus-20240229';
+            // Converter mensagens para formato Anthropic
+            $claudeMessages = [];
+            foreach ($messages as $msg) {
+                $claudeMessages[] = [
+                    'role' => $msg['role'] ?? 'user',
+                    'content' => $msg['content'] ?? $msg['message'] ?? ''
+                ];
+            }
+            $data = [
+                'model' => $model,
+                'max_tokens' => 1024,
+                'messages' => $claudeMessages,
+            ];
+            return $this->request('messages', $data);
     }
 
     public function image(string $prompt): mixed
     {
-        // Not supported by Claude (return null or throw)
-        return null;
+        // Not supported by Claude (return empty string)
+        return '';
     }
 
     public function voice(string $text): mixed
     {
-        // Not supported by Claude (return null or throw)
-        return null;
+        // Not supported by Claude (return empty string)
+        return '';
     }
 
     public function video(string $prompt): mixed
     {
-        // Not supported by Claude (return null or throw)
-        return null;
+        // Not supported by Claude (return empty string)
+        return '';
     }
 
     public function embeddings(string $text): mixed

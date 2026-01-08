@@ -18,6 +18,7 @@ $allowed = $rate->check('video_demo_' . $ip, 3, 60);
 
 $msg = '';
 $result = null;
+$debug = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) && $allowed && demo_provider_ready()) {
   $topic = trim(filter_input(INPUT_POST, 'topic', FILTER_DEFAULT));
   if ($topic) {
@@ -30,6 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
     $video = new Video($provider);
     $result = $video->generateShort(htmlspecialchars($topic, ENT_QUOTES, 'UTF-8'));
     $msg = 'Video/short generated!';
+    if (isset($provider) && method_exists($provider, 'getLastRawResponse')) {
+      $debug['provider_raw'] = $provider->getLastRawResponse();
+    }
   }
 }
 ?><!DOCTYPE html>
@@ -69,6 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['provider_select']) &
         </div>
         <div class="mb-2"><b>Narration:</b> <span class="text-gray-700"><?php echo htmlspecialchars($result['narration']); ?></span></div>
         <div><b>File:</b> <a href="<?php echo '../neuraphp/storage/' . basename($result['file']); ?>" class="text-blue-600 underline" download>Download Video File</a></div>
+        <div class="text-xs text-gray-500 mt-1">Vídeo/short gerado pelo provedor selecionado.</div>
+      </div>
+    <?php endif; ?>
+    <?php if (!empty($debug)): ?>
+      <div class="bg-gray-900 text-green-200 text-xs mt-6 p-4 rounded">
+        <div class="font-bold text-green-400 mb-1">Debug Info (API Response)</div>
+        <pre><?php echo htmlspecialchars(json_encode($debug, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)); ?></pre>
       </div>
     <?php endif; ?>
     <a href="index.php" class="block mt-6 text-blue-500">&larr; All Demos</a>
