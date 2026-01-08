@@ -15,7 +15,7 @@ $providers = [
 
 // Handle provider/key/model form
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['provider_select'])) {
-$sed = strtolower(trim($_POST['provider'] ?? ''));
+    $sel = strtolower(trim($_POST['provider'] ?? ''));
     $key = trim($_POST['api_key'] ?? '');
     $model = isset($_POST['model']) ? trim($_POST['model']) : null;
     $imageModel = isset($_POST['image_model']) ? trim($_POST['image_model']) : null;
